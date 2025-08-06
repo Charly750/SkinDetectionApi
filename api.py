@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
 from PIL import Image, ImageEnhance
+
+from PIL import ImageOps
 import io, base64
 import tflite_runtime.interpreter as tflite
 import os
@@ -22,14 +24,19 @@ class_names = [
     'seborrheic keratosis', 'squamous cell carcinoma', 'vascular lesion'
 ]
 
+
 def preprocess_image(image, target_size=(128, 128)):
-    # Ajustement luminosité et contraste
-    image = ImageEnhance.Brightness(image).enhance(1.2)
-    image = ImageEnhance.Contrast(image).enhance(1.3)
+    # Corriger l'orientation EXIF (important pour iPhone)
+    image = ImageOps.exif_transpose(image)
+    
+    # Redimensionner uniquement
     image = image.resize(target_size)
+    
+    # Convertir en array sans normalisation car modèle le fait déjà
     image_np = np.array(image).astype(np.float32)
     image_np = np.expand_dims(image_np, axis=0)
     return image_np
+
 
 @app.route('/predict', methods=['POST'])
 def make_prediction():
@@ -38,6 +45,7 @@ def make_prediction():
 
     img_data = base64.b64decode(request.json['image_base64'])
     image = Image.open(io.BytesIO(img_data)).convert("RGB")
+    image = image.resize((128, 128))
     input_array = preprocess_image(image)
 
     # Inference TFLite
