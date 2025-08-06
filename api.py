@@ -48,7 +48,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Chargement du modèle
-model_path = "C:\\Users\\ultim\\Desktop\\MEMOIRE\\cas_concret\\app\\back\\cbam_best_model.keras"
+model_path = "cbam_best_model.keras"
 model = load_model(model_path, custom_objects={'CBAM': CBAM})
 
 # Liste des noms de classes (à adapter selon ton problème)
