@@ -3,15 +3,14 @@ from flask_cors import CORS
 import numpy as np
 from PIL import Image, ImageEnhance
 import io, base64
-import tensorflow as tf
-
+import tflite_runtime.interpreter as tflite
+import os
 app = Flask(__name__)
 CORS(app)
 
 # Charger modèle TFLite au démarrage
-import os
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "cbam_best_model_LeakyRelu_float32.tflite")
-interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+interpreter = tflite.Interpreter(model_path=MODEL_PATH) 
 
 interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
