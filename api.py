@@ -70,6 +70,7 @@ def make_prediction():
 
 @app.route('/classes', methods=['GET'])
 def get_classes():
+    print("Récupération des classes...")
     lesions = list(lesions_collection.find({}, {"_id": 0}))
     return jsonify(lesions)
 
