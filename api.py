@@ -70,9 +70,15 @@ def make_prediction():
 
 @app.route('/classes', methods=['GET'])
 def get_classes():
-    print("Récupération des classes...")
-    lesions = list(lesions_collection.find({}, {"_id": 0}))
-    return jsonify(lesions)
+    try:
+        lesions = list(lesions_collection.find({}, {"_id": 0}))
+        if not lesions:
+            return jsonify({"message": "Aucune donnée disponible dans la base."}), 204
+        return jsonify(lesions), 200
+    except Exception as e:
+        print(f"Erreur MongoDB : {e}")
+        return jsonify({"error": "Erreur lors de la récupération des classes."}), 500
+
 
 @app.route('/')
 def index():
