@@ -2,13 +2,19 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
 from PIL import Image, ImageEnhance
-
 from PIL import ImageOps
 import io, base64
 import tflite_runtime.interpreter as tflite
 import os
+from pymongo import MongoClient
 app = Flask(__name__)
 CORS(app)
+
+MONGO_URI = "mongodb+srv://allsup1988:Sy78HCV93V4lETTX@cluster0.whxlukw.mongodb.net/"
+client = MongoClient(MONGO_URI)
+
+db = client["skin_detection"]
+lesions_collection = db["lesions"]
 
 # Charger modèle TFLite au démarrage
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "cbam_best_model_LeakyRelu_float32.tflite")
@@ -61,6 +67,11 @@ def make_prediction():
         "class_name": class_names[class_index],
         "confidence": confidence
     })
+
+@app.route('/classes', methods=['GET'])
+def get_classes():
+    lesions = list(lesions_collection.find({}, {"_id": 0}))
+    return jsonify(lesions)
 
 @app.route('/')
 def index():
