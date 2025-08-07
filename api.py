@@ -9,10 +9,21 @@ import os
 from pymongo import MongoClient
 app = Flask(__name__)
 CORS(app)
+from pymongo import MongoClient, errors
 
-client = MongoClient("mongodb+srv://allsup1988:Sy78HCV93V4lETTX@cluster0.whxlukw.mongodb.net/")
-db = client["skin_detection"]
-lesions_collection = db["lesions"]
+MONGO_URI = "mongodb+srv://allsup1988:Sy78HCV93V4lETTX@cluster0.whxlukw.mongodb.net/skin_detection?retryWrites=true&w=majority"
+
+try:
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)  # 5 secondes
+    db = client["skin_detection"]
+    lesions_collection = db["lesions"]
+    # Test de connexion
+    client.server_info()
+    print("Connexion à MongoDB réussie")
+except errors.ServerSelectionTimeoutError as e:
+    print("Erreur de connexion MongoDB:", e)
+    lesions_collection = None
+
 
 # Charger modèle TFLite au démarrage
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "cbam_best_model_LeakyRelu_float32.tflite")
@@ -68,14 +79,16 @@ def make_prediction():
 
 @app.route('/classes', methods=['GET'])
 def get_classes():
+    if lesions_collection is None:
+        return jsonify({"error": "Connexion à la base interrompue"}), 500
+
     try:
         lesions = list(lesions_collection.find({}, {"_id": 0}))
-        if not lesions:
-            return jsonify({"message": "Aucune donnée disponible dans la base."}), 204
         return jsonify(lesions), 200
     except Exception as e:
-        print(f"Erreur MongoDB : {e}")
-        return jsonify({"error": "Erreur lors de la récupération des classes."}), 500
+        print("Erreur lors de la requête:", e)
+        return jsonify({"error": "Impossible de récupérer les données"}), 500
+
 
 
 @app.route('/')
