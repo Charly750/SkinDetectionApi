@@ -10,11 +10,9 @@ from pymongo import MongoClient
 app = Flask(__name__)
 CORS(app)
 
-MONGO_URI = "mongodb+srv://allsup1988:Sy78HCV93V4lETTX@cluster0.whxlukw.mongodb.net/"
-client = MongoClient(MONGO_URI)
-
+client = MongoClient("mongodb+srv://allsup1988:Sy78HCV93V4lETTX@cluster0.whxlukw.mongodb.net/")
 db = client["skin_detection"]
-lesions_collection = db["lesions"]
+lesions = db["lesions"]
 
 # Charger modèle TFLite au démarrage
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "cbam_best_model_LeakyRelu_float32.tflite")
