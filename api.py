@@ -12,7 +12,7 @@ CORS(app)
 
 client = MongoClient("mongodb+srv://allsup1988:Sy78HCV93V4lETTX@cluster0.whxlukw.mongodb.net/")
 db = client["skin_detection"]
-lesions = db["lesions"]
+lesions_collection = db["lesions"]
 
 # Charger modèle TFLite au démarrage
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "cbam_best_model_LeakyRelu_float32.tflite")
