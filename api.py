@@ -33,12 +33,54 @@ interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
-class_names = [
-    'actinic keratosis', 'basal cell carcinoma', 'dermatofibroma',
-    'melanoma', 'nevus', 'pigmented benign keratosis',
-    'seborrheic keratosis', 'squamous cell carcinoma', 'vascular lesion'
-]
 
+classes = [
+    {
+        "name": "actinic keratosis",
+        "description": "Lésion précancéreuse causée par une exposition prolongée au soleil.",
+        "image": "/images/actinic_keratosis/actinic_keratosis.jpg"
+    },
+    {
+        "name": "basal cell carcinoma",
+        "description": "Forme la plus courante de cancer de la peau, souvent localisée et peu agressive.",
+        "image": "/images/basal_cell_carcinoma/basal_cell_carcinoma.jpg"
+    },
+    {
+        "name": "dermatofibroma",
+        "description": "Nodule bénin généralement brunâtre ou rougeâtre.",
+        "image": "/images/dermatofibroma/dermatofibroma.jpg"
+    },
+    {
+        "name": "melanoma",
+        "description": "Cancer cutané très agressif, potentiellement mortel s’il n’est pas détecté tôt.",
+        "image": "/images/melanoma/melanoma.jpg"
+    },
+    {
+        "name": "nevus",
+        "description": "Communément appelé grain de beauté, généralement bénin.",
+        "image": "/images/nevus/nevus.jpg"
+    },
+    {
+        "name": "pigmented benign keratosis",
+        "description": "Lésion pigmentée bénigne, souvent confondue avec un mélanome.",
+        "image": "/images/pigmented_benign_keratosis/pigmented_benign_keratosis.jpg"
+    },
+    {
+        "name": "seborrheic keratosis",
+        "description": "Croissance bénigne d’origine non cancéreuse de l'épiderme.",
+        "image": "/images/seborrheic_keratosis/seborrheic_keratosis.jpg"
+    },
+    {
+        "name": "squamous cell carcinoma",
+        "description": "Deuxième type de cancer de la peau le plus fréquent, peut s’étendre si non traité.",
+        "image": "/images/squamous_cell_carcinoma/squamous_cell_carcinoma.jpg"
+    },
+    {
+        "name": "vascular lesion",
+        "description": "Anomalie des vaisseaux sanguins, souvent bénigne.",
+        "image": "/images/vascular_lesion/vascular_lesion.jpg"
+    }
+]
 
 def preprocess_image(image, target_size=(128, 128)):
     # Corriger l'orientation EXIF (important pour iPhone)
@@ -70,11 +112,15 @@ def make_prediction():
 
     class_index = int(np.argmax(prediction))
     confidence = float(np.max(prediction))
+    class_info = classes[class_index]
+
     return jsonify({
         "prediction": prediction.tolist(),
         "class_index": class_index,
-        "class_name": class_names[class_index],
-        "confidence": confidence
+        "class_name": class_info["name"],
+        "confidence": confidence,
+        "class_description": class_info["description"],
+        "class_image": class_info["image"]
     })
 
 @app.route('/classes', methods=['GET'])
